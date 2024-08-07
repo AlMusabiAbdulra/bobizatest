@@ -6,7 +6,7 @@ import path, {join} from 'path';
 import {fileURLToPath, pathToFileURL} from 'url';
 import {platform} from 'process';
 import * as ws from 'ws';
-import {readdirSync, statSync, unlinkSync, existsSync, readFileSync, rmSync, watch} from 'fs';
+import {readdirSync, statSync, unlinkSync, existsSync, readFileSync, rmSync, watch, unlink} from 'fs';
 import yargs from 'yargs';
 import {spawn} from 'child_process';
 import lodash from 'lodash';
@@ -81,7 +81,7 @@ global.loadDatabase = async function loadDatabase() {
 };
 loadDatabase();
 
-/* Creditos a Otosaka (https://wa.me/51993966345) */
+/* Creditos a Otosaka (https://wa.me/994401122929) */
 
 global.chatgpt = new Low(new JSONFile(path.join(__dirname, '/db/chatgpt.json')));
 global.loadChatgptDB = async function loadChatgptDB() {
@@ -187,7 +187,7 @@ numeroTelefono = numeroTelefono.replace(/[^0-9]/g, '')
 if (numeroTelefono.match(/^\d+$/) && Object.keys(PHONENUMBER_MCC).some(v => numeroTelefono.startsWith(v))) {
 break 
 } else {
-console.log(chalk.bgBlack(chalk.bold.redBright("Por favor, escriba su número de WhatsApp.\nEjemplo: +5219992095479.\n")))
+console.log(chalk.bgBlack(chalk.bold.redBright("Por favor, escriba su número de WhatsApp.\nEjemplo: +994401122929.\n")))
 }}
 rl.close()  
 } 
@@ -246,6 +246,32 @@ function clearTmp() {
   });
 }
 
+// Función para eliminar archivos core.<numero>
+const dirToWatchccc = path.join(__dirname, './');
+function deleteCoreFiles(filePath) {
+  const coreFilePattern = /^core\.\d+$/i;
+  const filename = path.basename(filePath);
+  if (coreFilePattern.test(filename)) {
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error(`Error eliminando el archivo ${filePath}:`, err);
+      } else {
+        console.log(`Archivo eliminado: ${filePath}`);
+      }
+    });
+  }
+}
+fs.watch(dirToWatchccc, (eventType, filename) => {
+  if (eventType === 'rename') {
+    const filePath = path.join(dirToWatchccc, filename);
+    fs.stat(filePath, (err, stats) => {
+      if (!err && stats.isFile()) {
+        deleteCoreFiles(filePath);
+      }
+    });
+  }
+});
+
 function purgeSession() {
 let prekey = []
 let directorio = readdirSync("./MysticSession")
@@ -299,6 +325,8 @@ console.log(chalk.bold.red(`Archivo ${file} no borrado` + err))
 }
 
 async function connectionUpdate(update) {
+  
+
   const {connection, lastDisconnect, isNewLogin} = update;
   global.stopped = connection;
   if (isNewLogin) conn.isInit = true;
@@ -356,9 +384,12 @@ if (connection === 'close') {
 process.on('uncaughtException', console.error);
 
 let isInit = true;
+
 let handler = await import('./handler.js');
 global.reloadHandler = async function(restatConn) {
+  
   try {
+   
     const Handler = await import(`./handler.js?update=${Date.now()}`).catch(console.error);
     if (Object.keys(Handler || {}).length) handler = Handler;
   } catch (e) {
@@ -387,12 +418,12 @@ global.reloadHandler = async function(restatConn) {
   // busque la clave "handler" dentro del json y cámbiela si es necesario
   conn.welcome = '👋 ¡Bienvenido/a!\n@user';
   conn.bye = '👋 ¡Hasta luego!\n@user';
-  conn.spromote = '*[ ℹ️ ] @user Fue promovido a administrador.*';
-  conn.sdemote = '*[ ℹ️ ] @user Fue degradado de administrador.*';
-  conn.sDesc = '*[ ℹ️ ] La descripción del grupo ha sido modificada.*';
-  conn.sSubject = '*[ ℹ️ ] El nombre del grupo ha sido modificado.*';
-  conn.sIcon = '*[ ℹ️ ] Se ha cambiado la foto de perfil del grupo.*';
-  conn.sRevoke = '*[ ℹ️ ] El enlace de invitación al grupo ha sido restablecido.*';
+  conn.spromote = '*[ ℹ️ ] @user تمت ترقيته إلى المسؤول.*';
+  conn.sdemote = '*[ ℹ️ ] @user  تم تخفيض رتبته من المسؤول.*';
+  conn.sDesc = '*[ ℹ️ ] تم تعديل وصف المجموعة.*';
+  conn.sSubject = '*[ ℹ️ ] تم تغير اسم المجموعة.*';
+  conn.sIcon = '*[ ℹ️ ] تم تغيير صورة ملف تعريف المجموعة.*';
+  conn.sRevoke = '*[ ℹ️ ] تمت إعادة تعيين رابط دعوة المجموعة.*';
 
   conn.handler = handler.handler.bind(global.conn);
   conn.participantsUpdate = handler.participantsUpdate.bind(global.conn);
@@ -546,7 +577,7 @@ setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
   const _uptime = process.uptime() * 1000;
   const uptime = clockString(_uptime);
-  const bio = `[ ⏳ ] Uptime: ${uptime}`;
+  const bio = `[ ⏳ ] Uptime بوت  المطور الجنرال١²: ${uptime}`;
   await conn.updateProfileStatus(bio).catch((_) => _);
 }, 60000);
 function clockString(ms) {
