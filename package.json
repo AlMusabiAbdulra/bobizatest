@@ -33,7 +33,6 @@
   "dependencies": {
     "@adiwajshing/keyed-db": "^0.2.4",
     "npm update @adiwajshing/baileys":"*",
-    "@adiwajshing/baileys": "^4.0.1"
     "@bochilteam/scraper": "^4.2.4",
     "@brandond/findthelyrics": "^2.0.5",
     "@green-code/music-track-data": "^2.0.3",
